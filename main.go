@@ -20,9 +20,18 @@ import (
 	"github.com/xandout/gorpl/action"
 	"github.com/xandout/hdbcli/config"
 	"github.com/xandout/hdbcli/db"
+	"flag"
 )
 
-var mode = "table"
+var (
+	mode = "table"
+	useConfigFile = flag.Bool("useConfig", false, "Read config from json file.")
+	hostname = flag.String("h", "", "Hostname.")
+	port = flag.Int("port", 39013, "Port number.")
+	username = flag.String("u", "", "Username for connection.")
+	password = flag.String("p", "", "Password for comnnection.")
+	database = flag.String("d", "", "Database.")
+	)
 
 func tablePrinter(simpleRows *db.SimpleRows) {
 	table := tablewriter.NewWriter(os.Stdout)
@@ -92,12 +101,8 @@ func main() {
 	if userErr != nil {
 		log.Fatal(userErr)
 	}
-	conf, err := config.LoadConfiguration(filepath.Join(u.HomeDir, ".hdbcli_config.json"))
 
-	if err != nil {
-		log.Fatal(err)
-	}
-	d, err := db.New(*conf)
+	d, err := connection(u)
 
 	if err != nil {
 		log.Fatal(err)
@@ -183,4 +188,24 @@ func main() {
 		},
 	}
 	g.Start()
+}
+
+func connection(u *user.User) (*db.DB, error) {
+	var err error
+	var configuration *config.Configuration
+
+	flag.Parse()
+
+	if *useConfigFile {
+		configuration, err = config.LoadConfiguration(filepath.Join(u.HomeDir, ".hdbcli_config.json"))
+		} else {
+		configuration = config.NewConfiguration(*hostname, *port, *username, *password, *database)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	connection, err := db.New(*configuration)
+	return &connection, err
 }
