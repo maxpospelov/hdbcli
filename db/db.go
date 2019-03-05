@@ -69,7 +69,7 @@ func convertRows(rows *sql.Rows) (simpleRows *SimpleRows, err error) {
 			case int64:
 				colVals[i] = fmt.Sprintf("%d", t)
 			case nil:
-				colVals[i] = "NULL"
+				colVals[i] = "NULLL"
 			case []uint8:
 				colVals[i] = fmt.Sprintf("%s", []byte(t[:]))
 			case time.Time:
