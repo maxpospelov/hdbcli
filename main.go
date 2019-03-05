@@ -31,11 +31,15 @@ var (
 	username = flag.String("u", "", "Username for connection.")
 	password = flag.String("p", "", "Password for comnnection.")
 	database = flag.String("d", "", "Database.")
+	autoFormatHeaders = flag.Bool("fh", false, "Format headers.")
+	tableSeparator = flag.String("ts", "|", "Table separator.")
 	)
 
 func tablePrinter(simpleRows *db.SimpleRows) {
 	table := tablewriter.NewWriter(os.Stdout)
+	table.SetCenterSeparator(*tableSeparator)
 	table.SetHeader(simpleRows.Columns)
+	table.SetAutoFormatHeaders(*autoFormatHeaders)
 	table.AppendBulk(simpleRows.Rows)
 	table.SetAlignment(tablewriter.ALIGN_RIGHT) // Set Alignment
 	table.Render()
